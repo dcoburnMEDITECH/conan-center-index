@@ -39,8 +39,8 @@ class XmlSecConan(ConanFile):
         "with_nss": False,
         "with_gcrypt": False,
         "with_gnutls": False,
-        "with_openssl": False,
-        "with_mscrypto": True,
+        "with_openssl": True,
+        "with_mscrypto": False,
         "with_xslt": False
     }
 
@@ -51,6 +51,8 @@ class XmlSecConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+            self.options.with_openssl = False
+            self.options.with_mscrypto = True
 
     def configure(self):
         if self.options.shared:
