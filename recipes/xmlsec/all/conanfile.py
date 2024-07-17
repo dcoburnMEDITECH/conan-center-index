@@ -31,6 +31,7 @@ class XmlSecConan(ConanFile):
         "with_gcrypt": [True, False],
         "with_gnutls": [True, False],
         "with_xslt": [True, False],
+        "with_mscrypto": [True, False]
     }
     default_options = {
         "shared": False,
@@ -38,8 +39,9 @@ class XmlSecConan(ConanFile):
         "with_nss": False,
         "with_gcrypt": False,
         "with_gnutls": False,
-        "with_openssl": True,
-        "with_xslt": False,
+        "with_openssl": False,
+        "with_mscrypto": True,
+        "with_xslt": False
     }
 
     @property
@@ -67,13 +69,15 @@ class XmlSecConan(ConanFile):
             self.requires("libxslt/1.1.39")
 
     def validate(self):
+        if self.options.with_mscrypto and not is_msvc(self):
+            raise ConanInvalidConfiguration("Using mscrypto without msvc not supported yet in this recipe.")
         if self.options.with_nss:
             raise ConanInvalidConfiguration("xmlsec with nss not supported yet in this recice")
         if self.options.with_gcrypt:
             raise ConanInvalidConfiguration("xmlsec with gcrypt not supported yet in this recice")
         if self.options.with_gnutls:
             raise ConanInvalidConfiguration("xmlsec with gnutls not supported yet in this recice")
-        if not (self.options.with_openssl or self.options.with_nss or self.options.with_gcrypt or self.options.with_gnutls):
+        if not (self.options.with_openssl or self.options.with_nss or self.options.with_gcrypt or self.options.with_gnutls or self.options.with_mscrypto):
             raise ConanInvalidConfiguration("At least one crypto engine needs to be enabled")
 
     def build_requirements(self):
@@ -115,7 +119,7 @@ class XmlSecConan(ConanFile):
                 f"--with-nspr={yes_no(self.options.with_nss)}",
                 f"--with-gcrypt={yes_no(self.options.with_gcrypt)}",
                 f"--with-gnutls={yes_no(self.options.with_gnutls)}",
-                "--enable-mscrypto=no",   # Built on mingw
+                f"--enable-mscrypto={yes_no(self.options.with_mscrypto)}",
                 "--enable-mscng=no",      # Build on mingw
                 "--enable-docs=no",
                 "--enable-mans=no",
@@ -151,7 +155,9 @@ class XmlSecConan(ConanFile):
                         crypto_engines.append("openssl=300")
                 else:
                     crypto_engines.append(f"openssl={ov.major}{ov.minor}0")
-
+            elif self.options.with_mscrypto:
+                crypto_engines.append("mscrypto")
+                
             yes_no = lambda v: "yes" if v else "no"
             args = [
                 f"prefix={self.package_folder}",
@@ -238,7 +244,9 @@ class XmlSecConan(ConanFile):
             self.cpp_info.components["libxmlsec"].system_libs = ["m", "dl", "pthread"]
         if self.settings.os == "Windows":
             self.cpp_info.components["libxmlsec"].system_libs = ["crypt32", "ws2_32", "advapi32", "user32", "bcrypt"]
-
+            if self.options.with_mscrypto:
+                self.cpp_info.components["libxmlsec"].libs.append(f"{base_libname}-mscrypto{suffix}")
+                self.cpp_info.components["libxmlsec"].defines.append("XMLSEC_CRYPTO_MSCRYPTO")
         if self.options.with_openssl:
             self.cpp_info.components["openssl"].set_property("pkg_config_name", f"xmlsec{major}-openssl")
             self.cpp_info.components["openssl"].libs = [f"{base_libname}-openssl{suffix}"]
