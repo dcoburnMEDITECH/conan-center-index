@@ -39,8 +39,8 @@ class XmlSecConan(ConanFile):
         "with_nss": False,
         "with_gcrypt": False,
         "with_gnutls": False,
-        "with_openssl": True,
-        "with_mscrypto": False,
+        "with_openssl": False,
+        "with_mscrypto": True,
         "with_xslt": False
     }
 
@@ -68,7 +68,7 @@ class XmlSecConan(ConanFile):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
         if self.options.with_xslt:
-            self.requires("libxslt/1.1.39")
+            self.requires("libxslt/1.1.42")
 
     def validate(self):
         if self.options.with_mscrypto and not is_msvc(self):
@@ -86,7 +86,7 @@ class XmlSecConan(ConanFile):
         if not is_msvc(self):
             self.tool_requires("libtool/2.4.7")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/2.1.0")
+                self.tool_requires("pkgconf/[>=2.2 <3]")
             if self._settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
