@@ -34,6 +34,8 @@ class NTKernelErrorConan(ConanFile):
         }
 
     def validate(self):
+        if self.settings.os != "Windows":
+            raise ConanInvalidConfiguration("This library is only for the Windows platform")
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
