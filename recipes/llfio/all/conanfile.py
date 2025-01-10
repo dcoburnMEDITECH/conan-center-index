@@ -15,7 +15,7 @@ class llfioRecipe(ConanFile):
     topics = ("c++", "low level", "file io")
 
     # Binary configuration
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
 
@@ -38,6 +38,8 @@ class llfioRecipe(ConanFile):
     
     def build(self):
         pass
+    def package_id(self):
+        self.info.clear()
 
     def package(self):
         copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"),

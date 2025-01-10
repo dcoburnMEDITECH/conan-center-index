@@ -18,7 +18,7 @@ class NTKernelErrorConan(ConanFile):
     homepage = "https://github.com/ned14/ntkernel-error-category"
     topics = ("result", "header-only")
     package_type = "header-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "compiler"
     
     @property
     def _min_cppstd(self):
@@ -50,6 +50,9 @@ class NTKernelErrorConan(ConanFile):
 
     def build(self):
         pass
+
+    def package_id(self):
+        self.info.clear()
 
     def package(self):
         copy(self, "Licence.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
