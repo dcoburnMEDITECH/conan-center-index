@@ -23,8 +23,8 @@ class llfioRecipe(ConanFile):
         export_conandata_patches(self)
 
     def requirements(self):
-        self.requires("outcome/[>=2.2.9 <3]")
-        self.requires("quickcpplib/cci.20231208")
+        self.requires("outcome/[>=2.2.9 <3]", transitive_headers=True)
+        self.requires("quickcpplib/cci.20231208", transitive_headers=True)
         if self.settings.os == "Windows":
             self.requires("ntkernel-error-category/1.0.0")
 
