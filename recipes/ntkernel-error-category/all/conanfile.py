@@ -10,17 +10,16 @@ from conan.tools.scm import Version
 required_conan_version = ">=1.50.0"
 
 
-class OutcomeConan(ConanFile):
-    name = "outcome"
-    description = "Provides very lightweight outcome<T> and result<T>"
+class NTKernelErrorConan(ConanFile):
+    name = "ntkernel-error-category"
+    description = "A portable C++ 11 STL std::error_category implementation for the NT kernel error code space"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/ned14/outcome"
+    homepage = "https://github.com/ned14/ntkernel-error-category"
     topics = ("result", "header-only")
     package_type = "header-library"
-    settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
-
+    settings = "os", "compiler"
+    
     @property
     def _min_cppstd(self):
         return "14"
@@ -33,17 +32,10 @@ class OutcomeConan(ConanFile):
             "Visual Studio": "15",
             "msvc": "191",
         }
-    
-    def requirements(self):
-        self.requires("status-code/cci.20240614")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
-    def package_id(self):
-        self.info.clear()
 
     def validate(self):
+        if self.settings.os != "Windows":
+            raise ConanInvalidConfiguration("This library is only for the Windows platform")
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
@@ -59,6 +51,9 @@ class OutcomeConan(ConanFile):
     def build(self):
         pass
 
+    def package_id(self):
+        self.info.clear()
+
     def package(self):
         copy(self, "Licence.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"),
@@ -67,9 +62,11 @@ class OutcomeConan(ConanFile):
                                   dst=os.path.join(self.package_folder, "include"))
         copy(self, "*.h", src=os.path.join(self.source_folder, "include"),
                                   dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*.ixx", src=os.path.join(self.source_folder, "include"),
-                                  dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "ntkernel-error")
+        self.cpp_info.set_property("cmake_target_name", "ntkernel-error::ntkernel-error")
+        self.cpp_info.set_property("pkg_config_name", "ntkernel-error")
+
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []

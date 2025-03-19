@@ -1,0 +1,7 @@
+sources:
+  "cci.20241213":
+    url: https://github.com/ned14/llfio/archive/refs/tags/20241213.tar.gz
+    sha256: 5529CCD97068C9D4DAB6F916D779BD8E34918FD674BDD05CC5ACB36F94E9C118
+patches:
+#  "20241213":
+#    - patch_file: "patches/v20241213.patch"
