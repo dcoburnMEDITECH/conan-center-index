@@ -26,7 +26,7 @@ class llfioRecipe(ConanFile):
         self.requires("outcome/[>=2.2.9 <3]", transitive_headers=True)
         self.requires("quickcpplib/cci.20231208", transitive_headers=True)
         if self.settings.os == "Windows":
-            self.requires("ntkernel-error-category/1.0.0")
+            self.requires("ntkernel-error-category/1.0.0",transitive_headers=True)
 
     def configure(self):
         if self.options.shared:
