@@ -1,0 +1,7 @@
+sources:
+  "1.0.0":
+    url:
+    - "https://github.com/laudrup/boost-wintls/archive/refs/tags/v1.0.0.tar.gz"
+    sha256: "E5AA70D508AD709F25D6D6A1802E956B5706FE2D2761B619303EF6A851267E69"
+patches:
+  "1.0.0":
