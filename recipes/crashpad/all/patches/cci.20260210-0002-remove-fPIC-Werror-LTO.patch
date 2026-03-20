@@ -1,0 +1,43 @@
+--- third_party/mini_chromium/mini_chromium/build/config/BUILD.gn
++++ third_party/mini_chromium/mini_chromium/build/config/BUILD.gn
+@@ -121,12 +121,9 @@
+       "/OPT:REF",
+     ]
+     arflags = []
+     if (!mini_chromium_is_clang) {
+       cflags += [
+-        "/GL",  # LTCG.
+         "/d2Zi+",  # Improve debugging of optimized code.
+       ]
+-      ldflags += [ "/LTCG" ]
+-      arflags += [ "/LTCG" ]
+     }
+   }
+@@ -141,7 +141,6 @@
+     cflags = [
+       "-Wall",
+-      "-Werror",
+       "-Wextra",
+       "-fno-exceptions",
+       "-fno-rtti",
+       "-fno-strict-aliasing",  # See https://crbug.com/32204
+@@ -251,9 +251,8 @@
+       "/D_HAS_EXCEPTIONS=0",
+       "/D_UNICODE",
+       "/FS",
+       "/W4",
+-      "/WX",
+       "/Zi",
+       "/bigobj",  # Support larger number of sections in obj file.
+       "/wd4996",  # 'X' was declared deprecated.
+     ]
+@@ -381,9 +381,8 @@
+   if ((mini_chromium_is_posix && !mini_chromium_is_mac &&
+        !mini_chromium_is_ios) || mini_chromium_is_fuchsia) {
+-    cflags += [ "-fPIC" ]
+     ldflags += [
+       # This must follow Fuchsia’s fdio library above.
+       "-Wl,--as-needed",
+ 
+       "-Wl,-z,noexecstack",
+     ]

@@ -156,6 +156,9 @@ class CrashpadConan(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "third_party", "zlib", "BUILD.gn"),
                                   "libs = [ \"z\" ]",
                                   "libs = [ \"zlib.lib\" ]")
+            replace_in_file(self, os.path.join(self.source_folder, ".gn"),
+                                  "script_executable = \"python3\"",
+                                  "script_executable = \"python\"")
 
         if self.settings.compiler == "gcc":
             toolchain_path = os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium", "build", "config", "BUILD.gn")
@@ -166,11 +169,16 @@ class CrashpadConan(ConanFile):
         deps = AutotoolsDeps(self).vars()
         tc = AutotoolsToolchain(self).vars()
         def _get_flags(name):
-            return [f for f in filter(None, [tc.get(name), deps.get(name)])]
+            flags = []
+            for val in filter(None, [tc.get(name), deps.get(name)]):
+                flags.extend(val.split())
+            return flags
 
         extra_cflags = _get_flags("CPPFLAGS")
         extra_cflags_c = []
-        extra_cflags_cc = _get_flags("CXXFLAGS")
+        # GN/mini_chromium sets /std:c++20 itself; strip any cppstd flag to avoid overriding it
+        extra_cflags_cc = [f for f in _get_flags("CXXFLAGS")
+                           if not f.startswith("/std:c++") and not f.startswith("-std=c++")]
         extra_ldflags = _get_flags("LDFLAGS") + _get_flags("LIBS")
         if self.options.get_safe("fPIC"):
             extra_cflags.append("-fPIC")
@@ -192,6 +200,9 @@ class CrashpadConan(ConanFile):
             "extra_cflags_cc=\\\"{}\\\"".format(" ".join(extra_cflags_cc)),
             "extra_ldflags=\\\"{}\\\"".format(" ".join(extra_ldflags)),
         ]
+        if is_msvc(self):
+            # mini_chromium defaults to its bundled clang-cl on Windows; force cl.exe instead
+            gn_args.append("mini_chromium_is_clang=false")
         with chdir(self, self.source_folder):
             self.run("gn gen out/Default --args=\"{}\"".format(" ".join(gn_args)))
             targets = ["client", "minidump", "crashpad_handler", "snapshot"]
@@ -229,7 +240,9 @@ class CrashpadConan(ConanFile):
                          os.path.join(self.package_folder, "bin", "crashpad_handler.com"))
 
         # Remove accidentally copied libraries. These are used by the executables, not by the libraries.
-        rm(self, "*getopt*", os.path.join(self.package_folder, "lib"), recursive=True)
+        # Note: getopt.lib is intentionally kept on Windows - it is required by compat.lib
+        if self.settings.os != "Windows":
+            rm(self, "*getopt*", os.path.join(self.package_folder, "lib"), recursive=True)
 
         save(self, os.path.join(self.package_folder, "lib", "cmake", "crashpad-cxx.cmake"),
                    textwrap.dedent("""\
@@ -277,6 +290,8 @@ class CrashpadConan(ConanFile):
 
         self.cpp_info.components["snapshot"].libs = ["snapshot"]
         self.cpp_info.components["snapshot"].requires = ["context", "client_common", "mini_chromium_base", "util"]
+        if self.settings.os =="Windows":
+            self.cpp_info.components["snapshot"].system_libs.extend(["PowrProf.lib"])
         if is_apple_os(self):
             self.cpp_info.components["snapshot"].frameworks.extend(["OpenCL"])
 
@@ -297,6 +312,10 @@ class CrashpadConan(ConanFile):
 
         self.cpp_info.components["handler"].libs = ["handler"]
         self.cpp_info.components["handler"].requires = ["client", "util", "handler_common", "minidump", "snapshot"] + extra_handler_req
-
+        if self.settings.os == "Windows":
+            self.cpp_info.components["getopt"].libs = ["getopt"]
+            self.cpp_info.components["compat"].libs = ["compat"]
+            self.cpp_info.components["compat"].requires = ["getopt"]
+            self.cpp_info.components["handler"].requires.extend(["compat"])
         bin_path = os.path.join(self.package_folder, "bin")
         self.env_info.PATH.append(bin_path)

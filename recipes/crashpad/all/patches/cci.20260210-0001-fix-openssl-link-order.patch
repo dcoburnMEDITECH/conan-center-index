@@ -1,0 +1,30 @@
+--- util/BUILD.gn
++++ util/BUILD.gn
+@@ -686,11 +686,11 @@
+ 
+       if (crashpad_is_in_chromium || crashpad_is_in_fuchsia) {
+         deps += [ "//third_party/boringssl" ]
+       } else {
+         libs = [
+-          "crypto",
++          "ssl",
+-          "ssl",
++          "crypto",
+         ]
+       }
+     }
+   } else if (crashpad_http_transport_impl == "libcurl") {
+@@ -727,11 +727,11 @@
+       defines = [ "CRASHPAD_USE_BORINGSSL" ]
+ 
+       if (crashpad_is_in_chromium || crashpad_is_in_fuchsia) {
+         deps += [ "//third_party/boringssl" ]
+       } else {
+         libs = [
+-          "crypto",
++          "ssl",
+-          "ssl",
++          "crypto",
+         ]
+       }
+     }
