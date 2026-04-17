@@ -1,21 +1,31 @@
 sources:
-  "95.0.4629":
-    pdfium-cmake:
-      # FIXME: create release
-      url: "https://github.com/madebr/pdfium-cmake/archive/e02962c2ebf6d1a2edc7b05bb4fc8cb73cac5b18.zip"
-      sha256: "e8454d098af887bc989fbbc955b32566b109b4f03350fb6c08cc7f2e359a909f"
+  "20251117.7533":
     pdfium:
-      url: "https://pdfium.googlesource.com/pdfium/+archive/refs/heads/chromium/4629.tar.gz"
-      # sha256 is volatile on googlesource, no up-to-date github fork
-    trace_event:
-      url: "https://chromium.googlesource.com/chromium/src/base/trace_event/common/+archive/ad56859ef8c85cc09a3d8e95dcedadb5109a0af8.tar.gz"
-      # sha256 is volatile on googlesource, no up-to-date github fork
-    chromium_build:
-      url: "https://chromium.googlesource.com/chromium/src/build/+archive/95667421554b672f9330df8efb8148b6c2d00594.tar.gz"
-      # sha256 is volatile on googlesource, no up-to-date github fork
+      url: "https://github.com/chromium/pdfium/archive/21a5abba11669e5c1ebb28babccaee6108045583.tar.gz"
+      sha256: "11c613e9418c93e91f61a81098d3597cd499d51f7eaff078bd374c7c9b00c7f5"
+    build:
+      url: "https://chromium.googlesource.com/chromium/src/build/+archive/8c2e4caf42ac5e2d3dbe5f568079f7df2ce8a3e4.tar.gz"
+      # sha256 is volatile on googlesource tarballs
+    abseil_cpp:
+      url: "https://chromium.googlesource.com/chromium/src/third_party/abseil-cpp/+archive/14a5b78f39684f85a19690e63c722d6bb680f2cd.tar.gz"
+      # sha256 is volatile on googlesource tarballs
+    fast_float:
+      url: "https://chromium.googlesource.com/external/github.com/fastfloat/fast_float/+archive/cb1d42aaa1e14b09e1452cfdef373d051b8c02a4.tar.gz"
+      # sha256 is volatile on googlesource tarballs
 patches:
-  "95.0.4629":
-    - patch_file: "patches/95.0.4629-0001-include-stdint.patch"
-      patch_description: "Add missing standard include which affects newer versions of gcc"
-      patch_source: "https://pdfium.googlesource.com/pdfium/+/6dd81921398c1a44abf4eac7ce04446efee74169"
-      patch_type: "official"
+  "20251117.7533":
+    - patch_file: "patches/20251117.7533-0001-msvc-safe-math-disable-builtins.patch"
+      patch_description: "Disable clang/gcc safe math builtins on MSVC (uses fallback stubs)"
+      patch_type: "portability"
+    - patch_file: "patches/20251117.7533-0002-msvc-immediate-crash-debugbreak.patch"
+      patch_description: "Use __debugbreak() instead of asm volatile on MSVC x86"
+      patch_type: "portability"
+    - patch_file: "patches/20251117.7533-0003-msvc-byteorder-constexpr-swap.patch"
+      patch_description: "Replace __builtin_bswap with constexpr byte swap on MSVC"
+      patch_type: "portability"
+    - patch_file: "patches/20251117.7533-0004-msvc-debug-iterator-allocator.patch"
+      patch_description: "Allow MSVC debug _Container_proxy through partition allocator assert"
+      patch_type: "portability"
+    - patch_file: "patches/20251117.7533-0005-strip-pdfium-all-test-deps.patch"
+      patch_description: "Remove pdfium_all test target group that requires gclient-only deps"
+      patch_type: "conan"

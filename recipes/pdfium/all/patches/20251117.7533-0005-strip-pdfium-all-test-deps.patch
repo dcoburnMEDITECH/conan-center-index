@@ -1,0 +1,11 @@
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -11,7 +11,7 @@
+   testonly = true
+   deps = [ ":pdfium" ]
+   if (pdf_is_standalone) {
+-    deps += [ ":pdfium_all" ]
++    # deps += [ ":pdfium_all" ]  # Stripped by Conan — needs gclient test deps
+   }
+ }
+

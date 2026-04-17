@@ -1,0 +1,20 @@
+--- a/core/fxcrt/fx_memory_wrappers.h
++++ b/core/fxcrt/fx_memory_wrappers.h
+@@ -33,9 +33,17 @@
+ template <class T, void* Alloc(size_t, size_t), void Free(void*)>
+ struct FxPartitionAllocAllocator {
+  public:
++#if defined(_MSC_VER) && defined(_DEBUG)
++  // MSVC debug iterator machinery rebinds allocators with _Container_proxy.
++  static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value ||
++                    IsFXDataPartitionException<T>::value ||
++                    std::is_class<T>::value,
++                "Only numeric types allowed in this partition");
++#else
+   static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value ||
+                     IsFXDataPartitionException<T>::value,
+                 "Only numeric types allowed in this partition");
++#endif
+
+   using value_type = T;
+   using pointer = T*;
